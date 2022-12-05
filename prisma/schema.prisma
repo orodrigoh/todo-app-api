@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String    @id
+  name       String
+  email      String
+  password   String
+  created_at DateTime  @default(now())
+  updated_at DateTime? @updatedAt
+  Project    Project[]
+  Task       Task[]
+
+  @@map("users")
+}
+
+model Project {
+  id         String   @id
+  id_user    String
+  user       User     @relation(fields: [id_user], references: [id], onDelete: Cascade)
+  title      String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  Step       Step[]
+  Task       Task[]
+
+  @@map("projects")
+}
+
+model Step {
+  id         String   @id
+  id_project String
+  project    Project  @relation(fields: [id_project], references: [id], onDelete: Cascade)
+  name       String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  Task       Task[]
+
+  @@map("steps")
+}
+
+model Task {
+  id         String   @id
+  name       String
+  content    String
+  time_end   DateTime
+  order      Int
+  archived   Boolean  @default(false)
+  id_project String
+  id_step    String
+  id_user    String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  project    Project  @relation(fields: [id_project], references: [id], onDelete: Cascade)
+  step       Step     @relation(fields: [id_step], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [id_user], references: [id], onDelete: Cascade)
+
+  @@map("tasks")
+}
